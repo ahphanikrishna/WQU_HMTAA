@@ -62,6 +62,21 @@ class TechnicalIndicators:
         rsi_df = rsi_df.dropna()
 
         return rsi_df[3:]
+
+    def get_technical_indicators(self, data, period_dict={}):
+
+        # EMA
+        data.loc[:, "EMA"] = self.get_ema(data.loc[:, "Close"], period=period_dict.get('EMA', 21))
+
+        # ADX
+        data.loc[:, "ADX"] = pd.DataFrame(self.get_adx(data, period=period_dict.get('ADX', 14)))
+        data.loc[:, "ADXMove"] = (data.loc[:, "ADX"] / data.loc[:, "ADX"].shift(1)) > 1
+
+        # RSI
+        data.loc[:, "RSI"] = self.get_rsi(data, period=period_dict.get('RSI', 14))
+        data.loc[:, "RSIMove"] = (data.loc[:, "RSI"] / data.loc[:, "RSI"].shift(1)) > 1
+
+        return data
         
 
 class TickerData(TechnicalIndicators):
@@ -87,22 +102,6 @@ class TickerData(TechnicalIndicators):
                                 )
         else:
             data = pd.DataFrame()
-        return data
-
-    def get_technical_indicators(self, data):
-
-        # EMA
-        data.loc[:, "EMA"] = self.get_ema(data.loc[:, "Close"], period=21)
-
-        # ADX
-        data.loc[:, "ADX"] = pd.DataFrame(self.get_adx(data, period=14))
-
-        data.loc[:, "ADXMove"] = (data.loc[:, "ADX"] / data.loc[:, "ADX"].shift(1)) > 1
-
-        # RSI
-        data.loc[:, "RSI"] = self.get_rsi(data, period=14)
-        data.loc[:, "RSIMove"] = (data.loc[:, "RSI"] / data.loc[:, "RSI"].shift(1)) > 1
-
         return data
 
 
