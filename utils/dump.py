@@ -21,7 +21,7 @@ class TickerDump:
     def _dump(self):
         ticker = TickerData(ticker_name=self.ticker_name, period="10y", interval="1d")
         df = ticker.data()
-        df = ticker.get_technical_indicators(df)
+        # df = ticker.get_technical_indicators(df)
         if not df.empty:
             print(ticker)
             df.to_sql('data_{}'.format(self.ticker_name), con=self.engine)
@@ -57,9 +57,11 @@ class DBLoad:
 
 if __name__ == "__main__":
     import pandas as pd
-    df = pd.read_csv(os.path.join(Path(__file__).parent.parent, "db\\EQUITY_L.csv"))
-    for index, row in df.iloc[1400:, :].iterrows():
-        ticker_name = row['SYMBOL']
-        dump = TickerDump(ticker_name=ticker_name)
-        dump.drop_empty_tables()
+    # df = pd.read_csv(os.path.join(Path(__file__).parent.parent, "db\\EQUITY_L.csv"))
+    # for index, row in df.iloc[1600:,:].iterrows():
+    #     ticker_name = row['SYMBOL']
+    #     dump = TickerDump(ticker_name=ticker_name)
+    #     dump._dump()
+    dump = TickerDump(ticker_name="^NSEI")
+    dump._dump()
 
