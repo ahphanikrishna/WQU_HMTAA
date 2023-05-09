@@ -18,7 +18,7 @@ class TickerDump:
         self.engine = create_engine('sqlite:///' + os.path.join(Path(__file__).parent.parent, "db\\Data.db"), echo=False)
         self.conn = self.engine.connect()
 
-    def _dump(self):
+    def dump(self):
         ticker = TickerData(ticker_name=self.ticker_name, period="10y", interval="1d")
         df = ticker.data()
         # df = ticker.get_technical_indicators(df)
@@ -38,6 +38,7 @@ class TickerDump:
                 print("Deleting table\n")
                 base.metadata.drop_all(self.engine, [table], checkfirst=True)
 
+
 class DBLoad:
     def __init__(self, db_path=None):
         self.db_path = db_path or os.path.join(Path(__file__).parent.parent, "db\\Data.db")
@@ -47,9 +48,17 @@ class DBLoad:
         self.engine = create_engine('sqlite:///' + self.db_path, echo=False)
         self.conn = self.engine.connect()
 
-    def load(self, table_name):
+    def check_table(self, ticker_name):
+        base = declarative_base()
+        metadata = MetaData()
+        metadata.reflect(bind=self.engine)
+        table = metadata.tables.get('data_{}'.format(ticker_name))
+        flag = True if table is not None else False
+        return flag
+
+    def load(self, ticker_name):
         table_df = pd.read_sql_table(
-            "data_{}".format(table_name),
+            "data_{}".format(ticker_name),
             con=self.engine,
         )
         return table_df
@@ -63,5 +72,5 @@ if __name__ == "__main__":
     #     dump = TickerDump(ticker_name=ticker_name)
     #     dump._dump()
     dump = TickerDump(ticker_name="^NSEI")
-    dump._dump()
+    dump.dump()
 

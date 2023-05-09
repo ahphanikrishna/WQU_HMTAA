@@ -5,9 +5,9 @@ from optimization.initial_strategy import STRATEGY, LIMITS
 
 def get_random_strategy():
     random_strat = copy.deepcopy(STRATEGY)
-    random_strat["Entry"]["ADXPeriod"] = random.randint(LIMITS.get("Entry_ADX_period_min"),
+    random_strat["time_period"]["ADXPeriod"] = random.randint(LIMITS.get("Entry_ADX_period_min"),
                                                         LIMITS.get("Entry_ADX_period_max"))
-    random_strat["Entry"]["RSIPeriod"] = random.randint(LIMITS.get("Entry_RSI_period_min"),
+    random_strat["time_period"]["RSIPeriod"] = random.randint(LIMITS.get("Entry_RSI_period_min"),
                                                         LIMITS.get("Entry_RSI_period_max"))
     random_strat["Entry"]["ADX"]["Value"] = random.randint(LIMITS.get("Entry_ADX_value_min"),
                                                            LIMITS.get("Entry_ADX_value_max"))
@@ -18,7 +18,7 @@ def get_random_strategy():
     random_strat["Entry"]["RSI"]["direction"] = random.choice(LIMITS.get("Entry_RSI_direction"))
     random_strat["Entry"]["RSIMove"]["Value"] = random.choice(LIMITS.get("Entry_RSI_move"))
 
-    random_strat["Exit"]["EMAPeriod"] = random.randint(LIMITS.get("Exit_EMA_period_min"),
+    random_strat["time_period"]["EMAPeriod"] = random.randint(LIMITS.get("Exit_EMA_period_min"),
                                                        LIMITS.get("Exit_EMA_period_max"))
 
     return random_strat

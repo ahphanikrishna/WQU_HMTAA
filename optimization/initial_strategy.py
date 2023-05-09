@@ -1,10 +1,14 @@
 
-from optimization import fitness_function as ff
+from optimization import trading_model as ff
 
 STRATEGY = {
-    "Entry":    {
+    "time_period":   {
                     "ADXPeriod": 14,
                     "RSIPeriod": 14,
+                    "EMAPeriod": 21,
+                },
+    "Entry":    {
+
                     "ADX": {
                             "Value": 20,
                             "Type": "value",
@@ -32,7 +36,6 @@ STRATEGY = {
                         "Type": "column",
                         "direction": "down",
                         },
-                "EMAPeriod": 21,
     }
 }
 
@@ -55,8 +58,11 @@ LIMITS = {
 
 
 if __name__ == "__main__":
-    ticker = "HAL"
-    index_name = "Hindustan Aeronautics Ltd"
+    ticker = "^NSEI"
+    index_name = "NIFTY"
     strategy_final, df = ff.strategy_results(ticker, STRATEGY)
+    fitness = ff.fitness_function(strategy_final)
+    for i, j in fitness.items():
+        print(i, ' : ', j)
     ff.get_technical_plot(df, index_name)
     ff.get_strategy_plot(df, strategy_final, index_name)

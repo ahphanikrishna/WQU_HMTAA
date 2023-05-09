@@ -6,8 +6,8 @@ import matplotlib.transforms as mtransforms
 
 from datetime import datetime
 from pathlib import Path
-from utils.dump import DBLoad
-from initial_strategy import STRATEGY
+from utils.dump import DBLoad, TickerDump
+from utils.stock_data import TechnicalIndicators
 
 PATH = str(Path(__file__).parent) + "/Plots/"
 
@@ -125,31 +125,54 @@ def get_strategy_plot(df, strategy_final, index_name):
     plt.show(block=False)
 
 
-def strategy_results(ticker, STRATEGY):
+def strategy_results(ticker, strategy):
     db = DBLoad()
-    df = db.load(ticker)
 
-    entry_rule = STRATEGY['Entry']
-    c = True
-    for i, (key, value) in enumerate(entry_rule.items()):
-        if i == 0:
-            c = (get_condition(value, key, df))
-        else:
-            c = c & (get_condition(value, key, df))
-    df.loc[:, "Entry"] = np.where(c, 1, 0)
-    df.loc[:, "Shift Entry"] = df['Entry'].shift(1)
+    df = pd.DataFrame()
+    if db.check_table(ticker):
+        df = db.load(ticker)
+    else:
+        dump = TickerDump(ticker_name="^NSEI")
+        dump.dump()
+        if db.check_table(ticker):
+            df = db.load(ticker)
 
-    exit_rule = STRATEGY['Exit']
-    for i, (key, value) in enumerate(exit_rule.items()):
-        if i == 0:
-            c = (get_condition(value, key, df))
-        else:
-            c = c & (get_condition(value, key, df))
+    if not df.empty:
 
-    df.loc[:, "Exit"] = np.where(c, 1, 0)
+        periods = strategy["time_period"]
 
-    df = hold_regions(df)
-    strategy_final, df = get_performance(df)
-    return strategy_final, df
+        df = TechnicalIndicators().get_technical_indicators(df, periods)
+
+        entry_rule = strategy['Entry']
+        c = True
+        for i, (key, value) in enumerate(entry_rule.items()):
+            if i == 0:
+                c = (get_condition(value, key, df))
+            else:
+                c = c & (get_condition(value, key, df))
+        df.loc[:, "Entry"] = np.where(c, 1, 0)
+        df.loc[:, "Shift Entry"] = df['Entry'].shift(1)
+
+        exit_rule = strategy['Exit']
+        for i, (key, value) in enumerate(exit_rule.items()):
+            if i == 0:
+                c = (get_condition(value, key, df))
+            else:
+                c = c & (get_condition(value, key, df))
+
+        df.loc[:, "Exit"] = np.where(c, 1, 0)
+
+        df = hold_regions(df)
+        strategy_final, df = get_performance(df)
+        return strategy_final, df
+    else:
+        return pd.DataFrame(), pd.DataFrame()
 
 
+def fitness_function(strategy_final):
+    ff = {"Win Ratio": np.sum(np.where(strategy_final["Returns"] > 0, 1, 0)) / len(strategy_final),
+          "Max draw-down": np.sum(np.where(strategy_final["Returns"] < 0, strategy_final["Returns"], 0)),
+          "performance Ratio": strategy_final.loc[strategy_final["Returns"] > 0, "Returns"].sum() / \
+                               strategy_final.loc[strategy_final["Returns"] < 0, "Returns"].sum(),
+          "Total Returns": strategy_final["Returns"].sum()}
+    return ff
