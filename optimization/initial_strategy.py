@@ -43,14 +43,16 @@ STRATEGY = {
 LIMITS = {
     "Entry_ADX_period_min": 7,
     "Entry_ADX_period_max": 31,
-    "Entry_ADX_value_min": 20,
-    "Entry_ADX_value_max": 80,
+    "Entry_ADX_value_min": 5,
+    "Entry_ADX_value_max": 40
+
+    ,
     "Entry_ADX_direction": ["up"],
     "Entry_ADX_move": [True],
     "Entry_RSI_period_min": 7,
     "Entry_RSI_period_max": 31,
-    "Entry_RSI_value_min": 5,
-    "Entry_RSI_value_max": 30,
+    "Entry_RSI_value_min": 10,
+    "Entry_RSI_value_max": 80,
     "Entry_RSI_direction": ["up"],
     "Entry_RSI_move": [True],
     "Exit_EMA_period_min": 7,

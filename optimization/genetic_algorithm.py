@@ -1,16 +1,23 @@
 import copy
 import random
+import logging
+import datetime
 import multiprocessing
 import numpy as np
+import pandas as pd
 
+from pathlib import Path
 from optimization.initial_strategy import STRATEGY, LIMITS, load_data
 from optimization import trading_model as ff
 
+logger = logging.getLogger(__name__)
 
-NUM_EVOLUTIONS = 250
-TOP_PERC = 0.2
-NUM_STRATEGIES = 32
-TILL_DATE_FILTER = "2021-01-01"
+NUM_EVOLUTIONS = 100
+TOP_PERC = 0.1
+NUM_STRATEGIES = 50
+
+
+TILL_DATE_FILTER = "2023-01-01"
 
 def get_random_strategy():
     random_strat = copy.deepcopy(STRATEGY)
@@ -94,11 +101,23 @@ def mutation(strategy, flag):
 
 def run_genetic_algorithm(ticker):
 
+    # logging handlers
+    file = str(Path(__file__).parent) + "/Results/{}_{}.log".format(ticker,
+                                                                    datetime.datetime.today().strftime("%Y%m%d"))
+    c_handler = logging.StreamHandler()
+    logger.addHandler(c_handler)
+
+    f_handler = logging.FileHandler(file)
+    logger.addHandler(f_handler)
+    logger.setLevel(logging.INFO)
+
+
     price_data = load_data(ticker)
     price_data = price_data[price_data['Date'] <= TILL_DATE_FILTER]
     population = create_population(NUM_STRATEGIES)
+    population[0] = STRATEGY
     change_perc = np.round((1-TOP_PERC)*NUM_STRATEGIES)
-    pool = multiprocessing.Pool(16)
+    pool = multiprocessing.Pool(8)
 
     for i in range(NUM_EVOLUTIONS):
         fitness = np.zeros((NUM_STRATEGIES, 2))
@@ -112,12 +131,17 @@ def run_genetic_algorithm(ticker):
         #     fitness[j, 1] = ff.fitness_function(price_data, strategy).get("Max draw-down")
 
         ranks = fitness[fitness[:, 1].argsort()]
-        print("best result for rounf {} is with \nobective: {}\n"
-              "strategy: {}\nfitness {}".format(i,
-                                                ranks[-1, 1], population[ranks[-1, 0]].__str__(),
-                                                results[int(ranks[-1, 0])].__str__()))
+        logger.info("best result for round {} is with \nobective: {}\n"
+                    "strategy: {}\nfitness {}".format(i,
+                                                      ranks[-1, 1], population[ranks[-1, 0]].__str__(),
+                                                      results[int(ranks[-1, 0])].__str__()))
+
         good_strats = ranks[int(change_perc):, 0]
         bad_strats = ranks[:int(change_perc), 0]
+
+        # dt = datetime.datetime.today().strftime("%Y%m%d")
+        # pd.DataFrame(ranks).to_csv(str(Path(__file__).parent) + "/Results/{}_{}_{}.csv".format(ticker, dt, i),
+        #                            index=False)
 
         # applying cross_over and mutation and random strategy on bad strategies
 
