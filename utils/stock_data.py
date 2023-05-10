@@ -66,14 +66,14 @@ class TechnicalIndicators:
     def get_technical_indicators(self, data, period_dict={}):
 
         # EMA
-        data.loc[:, "EMA"] = self.get_ema(data.loc[:, "Close"], period=period_dict.get('EMA', 21))
+        data.loc[:, "EMA"] = self.get_ema(data.loc[:, "Close"], period=period_dict.get('EMAPeriod', 21))
 
         # ADX
-        data.loc[:, "ADX"] = pd.DataFrame(self.get_adx(data, period=period_dict.get('ADX', 14)))
+        data.loc[:, "ADX"] = pd.DataFrame(self.get_adx(data, period=period_dict.get('ADXPeriod', 14)))
         data.loc[:, "ADXMove"] = (data.loc[:, "ADX"] / data.loc[:, "ADX"].shift(1)) > 1
 
         # RSI
-        data.loc[:, "RSI"] = self.get_rsi(data, period=period_dict.get('RSI', 14))
+        data.loc[:, "RSI"] = self.get_rsi(data, period=period_dict.get('RSIPeriod', 14))
         data.loc[:, "RSIMove"] = (data.loc[:, "RSI"] / data.loc[:, "RSI"].shift(1)) > 1
 
         return data

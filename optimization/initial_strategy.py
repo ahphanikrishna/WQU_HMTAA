@@ -1,4 +1,5 @@
-
+import pandas as pd
+from utils.dump import DBLoad, TickerDump
 from optimization import trading_model as ff
 
 STRATEGY = {
@@ -42,27 +43,41 @@ STRATEGY = {
 LIMITS = {
     "Entry_ADX_period_min": 7,
     "Entry_ADX_period_max": 31,
-    "Entry_ADX_value_min": 0,
-    "Entry_ADX_value_max": 100,
-    "Entry_ADX_direction": ["up", "down"],
-    "Entry_ADX_move": [True, False],
+    "Entry_ADX_value_min": 20,
+    "Entry_ADX_value_max": 80,
+    "Entry_ADX_direction": ["up"],
+    "Entry_ADX_move": [True],
     "Entry_RSI_period_min": 7,
     "Entry_RSI_period_max": 31,
-    "Entry_RSI_value_min": 0,
-    "Entry_RSI_value_max": 100,
-    "Entry_RSI_direction": ["up", "down"],
-    "Entry_RSI_move": [True, False],
+    "Entry_RSI_value_min": 5,
+    "Entry_RSI_value_max": 30,
+    "Entry_RSI_direction": ["up"],
+    "Entry_RSI_move": [True],
     "Exit_EMA_period_min": 7,
     "Exit_EMA_period_max": 31,
 }
 
 
+def load_data(ticker):
+    db = DBLoad()
+    df = pd.DataFrame()
+    if db.check_table(ticker):
+        df = db.load(ticker)
+    else:
+        dump = TickerDump(ticker_name="^NSEI")
+        dump.dump()
+        if db.check_table(ticker):
+            df = db.load(ticker)
+    return df
+
 if __name__ == "__main__":
     ticker = "^NSEI"
     index_name = "NIFTY"
-    strategy_final, df = ff.strategy_results(ticker, STRATEGY)
-    fitness = ff.fitness_function(strategy_final)
-    for i, j in fitness.items():
-        print(i, ' : ', j)
-    ff.get_technical_plot(df, index_name)
-    ff.get_strategy_plot(df, strategy_final, index_name)
+
+    df = load_data(ticker)
+    if not df.empty:
+        fitness = ff.fitness_function(df, STRATEGY)
+        for i, j in fitness.items():
+            print(i, ' : ', j)
+        # ff.get_technical_plot(df, index_name)
+        # ff.get_strategy_plot(df, strategy_final, index_name)
