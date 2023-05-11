@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 
-from datetime import datetime
+import datetime
 from pathlib import Path
 from utils.stock_data import TechnicalIndicators
 
@@ -86,7 +86,9 @@ def get_technical_plot(df, index_name):
     axs[1].set_title('RSI and ADX')
     axs[1].set_xlabel('Date')
     axs[1].legend()
-    plt.savefig(PATH + index_name + "_technical.jpg")
+
+    dt = datetime.datetime.now().strftime("%Y%m%d%H%M")
+    plt.savefig(PATH + index_name + "_technical_{}.jpg".format(dt))
     plt.show(block=False)
 
 
@@ -120,7 +122,9 @@ def get_strategy_plot(df, strategy_final, index_name):
     axs[1].axhline(y=0, color='k', linestyle='--')
 
     axs[1].legend(loc='upper left')
-    plt.savefig(PATH + index_name + "_strategy.jpg")
+
+    dt = datetime.datetime.now().strftime("%Y%m%d%H%M")
+    plt.savefig(PATH + index_name + "_strategy_{}.jpg".format(dt))
     plt.show(block=False)
 
 

@@ -75,11 +75,12 @@ def load_data(ticker):
 if __name__ == "__main__":
     ticker = "^NSEI"
     index_name = "NIFTY"
-
     df = load_data(ticker)
+    new_df = df.copy()
     if not df.empty:
         fitness = ff.fitness_function(df, STRATEGY)
+        strategy_final, df = ff.strategy_results(new_df, STRATEGY)
         for i, j in fitness.items():
             print(i, ' : ', j)
-        # ff.get_technical_plot(df, index_name)
-        # ff.get_strategy_plot(df, strategy_final, index_name)
+        ff.get_technical_plot(df, index_name)
+        ff.get_strategy_plot(df, strategy_final, index_name)

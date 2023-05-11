@@ -103,7 +103,7 @@ def run_genetic_algorithm(ticker):
 
     # logging handlers
     file = str(Path(__file__).parent) + "/Results/{}_{}.log".format(ticker,
-                                                                    datetime.datetime.today().strftime("%Y%m%d"))
+                                                                    datetime.datetime.now().strftime("%Y%m%d%H%M"))
     c_handler = logging.StreamHandler()
     logger.addHandler(c_handler)
 
@@ -125,7 +125,7 @@ def run_genetic_algorithm(ticker):
 
         args = [(price_data, strategy) for strategy in population.values()]
         results = pool.starmap(ff.fitness_function, args)
-        fitness[:, 1] = [-result.get("performance Ratio") for result in results]
+        fitness[:, 1] = [result.get("Total Returns") for result in results]
         # for j, strategy in population.items():
         #     print(j)
         #     fitness[j, 1] = ff.fitness_function(price_data, strategy).get("Max draw-down")
