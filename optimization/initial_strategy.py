@@ -48,13 +48,13 @@ LIMITS = {
 
     ,
     "Entry_ADX_direction": ["up"],
-    "Entry_ADX_move": [True],
+    "Entry_ADX_move": [True,False],
     "Entry_RSI_period_min": 7,
     "Entry_RSI_period_max": 31,
     "Entry_RSI_value_min": 10,
     "Entry_RSI_value_max": 80,
-    "Entry_RSI_direction": ["up"],
-    "Entry_RSI_move": [True],
+    "Entry_RSI_direction": ["up","down"],
+    "Entry_RSI_move": [True,False],
     "Exit_EMA_period_min": 7,
     "Exit_EMA_period_max": 31,
 }

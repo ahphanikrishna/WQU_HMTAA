@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 NUM_EVOLUTIONS = 100
 TOP_PERC = 0.1
-NUM_STRATEGIES = 50
+NUM_STRATEGIES = 100
 
 
 TILL_DATE_FILTER = "2023-01-01"
@@ -117,7 +117,7 @@ def run_genetic_algorithm(ticker):
     population = create_population(NUM_STRATEGIES)
     population[0] = STRATEGY
     change_perc = np.round((1-TOP_PERC)*NUM_STRATEGIES)
-    pool = multiprocessing.Pool(8)
+    pool = multiprocessing.Pool(16)
 
     for i in range(NUM_EVOLUTIONS):
         fitness = np.zeros((NUM_STRATEGIES, 2))
