@@ -92,7 +92,7 @@ def get_technical_plot(df, index_name):
     plt.show(block=False)
 
 
-def get_strategy_plot(df, strategy_final, index_name):
+def get_strategy_plot(df, strategy_final, index_name, title="Deterministic Trading"):
     fig, axs = plt.subplots(2, figsize=(20, 6))
     ax2 = axs[0].twinx()
     ax2.plot(df['Date'], df['Close'], label=index_name)
@@ -105,7 +105,7 @@ def get_strategy_plot(df, strategy_final, index_name):
     axs[0].fill_between(df['Date'], 0, 1, where=df.loc[:, "Green"] == 1,
                         facecolor='green', alpha=0.5, transform=trans)
 
-    axs[0].set_title('Deterministic Trading Strategy')
+    axs[0].set_title('{} Strategy'.format(title))
     axs[0].set_ylabel('Trading Index (RSI, ADX)')
     axs[0].set_ylabel('Price (Close, EMA)')
 
