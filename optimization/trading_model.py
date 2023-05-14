@@ -158,24 +158,37 @@ def strategy_results(df, strategy):
     return strategy_final, df
 
 
-def fitness_function(df, strategy):
+def fitness_function(df, strategy, initial_amount=1e6):
     strategy_final, df = strategy_results(df, strategy)
+
+    strategy_final = strategy_final[~strategy_final["Date_Entry"].isnull()]
+    strategy_final = strategy_final[~strategy_final["Date_Exit"].isnull()]
+
+    for i in range(strategy_final.shape[0]):
+        if i == 0:
+            strategy_final.loc[i, "AvailableAmount"] = initial_amount
+        else:
+            strategy_final.loc[i, "AvailableAmount"] = strategy_final.loc[i-1, "AvailableAmount"] + strategy_final.loc[i-1, "ActualReturns"]
+        strategy_final.loc[i, "Units"] = strategy_final.loc[i, "AvailableAmount"]/strategy_final.loc[i, "Close_Entry"]
+        strategy_final.loc[i, "ActualReturns"] = strategy_final.loc[i, "Units"]*strategy_final.loc[i, "Returns"]
+        strategy_final.loc[i, "DrawDown"] = min(strategy_final.loc[i, "AvailableAmount"] - strategy_final.loc[:i, "AvailableAmount"].max(), 0)
+
     if strategy_final.empty:
         ff = {"Win Ratio": 0.0,
               "Max draw-down": -1e6,
               "performance Ratio": 0.0,
               "Total Returns": 0.0}
-    elif np.sum(np.where(strategy_final["Returns"] < 0, strategy_final["Returns"], 0)) == 0.0:
+    elif np.sum(np.where(strategy_final["ActualReturns"] < 0, strategy_final["ActualReturns"], 0)) == 0.0:
         ff = {"Win Ratio": 0.0,
               "Max draw-down": -1e6,
               "performance Ratio": 0.0,
               "Total Returns": 0.0}
     else:
-        ff = {"Win Ratio": np.sum(np.where(strategy_final["Returns"] > 0, 1, 0)) / len(strategy_final),
-              "Max draw-down": np.sum(np.where(strategy_final["Returns"] < 0, strategy_final["Returns"], 0)),
-              "performance Ratio": strategy_final.loc[strategy_final["Returns"] > 0, "Returns"].sum() / \
-                                   strategy_final.loc[strategy_final["Returns"] < 0, "Returns"].sum(),
-              "Total Returns": strategy_final["Returns"].sum()}
+        ff = {"Win Ratio": np.sum(np.where(strategy_final["ActualReturns"] > 0, 1, 0)) / len(strategy_final),
+              "Max draw-down": -1*(strategy_final.loc[:, "DrawDown"].min()),
+              "performance Ratio": -1*(strategy_final.loc[strategy_final["ActualReturns"] > 0, "ActualReturns"].sum() / \
+                                   min(strategy_final.loc[:, "DrawDown"].min(), -0.1*initial_amount)),
+              "Total Returns": strategy_final["ActualReturns"].sum()}
 
-    ff["Objective"] = -ff["performance Ratio"] * 0.8 + ff["Win Ratio"] * 0.8
+    ff["Objective"] = ff["performance Ratio"] * ff["Total Returns"]
     return ff

@@ -28,14 +28,14 @@ def strategy_test(ticker, index_name, strategy, title):
 
 
 if __name__ == "__main__":
-    ticker = "^NSEI"
-    index_name = "NIFTY"
-    strategy = dict(time_period={'ADXPeriod': 14, 'RSIPeriod': 11, 'EMAPeriod': 29},
-                    Entry=dict(ADX={'Value': 8, 'Type': 'value', 'direction': 'up'},
-                               RSI={'Value': 71, 'Type': 'value', 'direction': 'up'},
+    ticker = "NIFTYBEES.NS"
+    index_name = "NIFTY ETF (Total Returns Optimized)"
+    strategy = dict(time_period={'ADXPeriod': 17, 'RSIPeriod': 14, 'EMAPeriod': 21},
+                    Entry=dict(ADX={'Value': 11, 'Type': 'value', 'direction': 'up'},
+                               RSI={'Value': 55, 'Type': 'value', 'direction': 'up'},
                                ADXMove={'Value': True, 'Type': bool, 'direction': None},
                                RSIMove={'Value': True, 'Type': bool, 'direction': None}),
                     Exit= dict(Close={'Value': 'EMA', 'Type': 'column', 'direction': 'down'}))
 
-    title = "Performance Ratio Optimization"
+    title = "Total Returns Optimization"
     strategy_test(ticker, index_name, strategy, title)

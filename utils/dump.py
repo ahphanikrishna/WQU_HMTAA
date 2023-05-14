@@ -71,6 +71,6 @@ if __name__ == "__main__":
     #     ticker_name = row['SYMBOL']
     #     dump = TickerDump(ticker_name=ticker_name)
     #     dump._dump()
-    dump = TickerDump(ticker_name="^NSEI")
+    dump = TickerDump(ticker_name="NIFTYBEES.NS")
     dump.dump()
 

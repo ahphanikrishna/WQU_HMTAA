@@ -64,7 +64,7 @@ def load_data(ticker):
     if db.check_table(ticker):
         df = db.load(ticker)
     else:
-        dump = TickerDump(ticker_name="^NSEI")
+        dump = TickerDump(ticker_name=ticker)
         dump.dump()
         if db.check_table(ticker):
             df = db.load(ticker)
@@ -72,8 +72,8 @@ def load_data(ticker):
 
 
 if __name__ == "__main__":
-    ticker = "^NSEI"
-    index_name = "NIFTY"
+    ticker = "NIFTYBEES.NS"
+    index_name = "NIFTY ETF"
     df = load_data(ticker)
     new_df = df.copy()
     if not df.empty:
