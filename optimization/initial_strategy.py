@@ -44,17 +44,15 @@ LIMITS = {
     "Entry_ADX_period_min": 7,
     "Entry_ADX_period_max": 31,
     "Entry_ADX_value_min": 5,
-    "Entry_ADX_value_max": 40
-
-    ,
+    "Entry_ADX_value_max": 100,
     "Entry_ADX_direction": ["up"],
-    "Entry_ADX_move": [True,False],
+    "Entry_ADX_move": [True],
     "Entry_RSI_period_min": 7,
     "Entry_RSI_period_max": 31,
-    "Entry_RSI_value_min": 10,
-    "Entry_RSI_value_max": 80,
-    "Entry_RSI_direction": ["up","down"],
-    "Entry_RSI_move": [True,False],
+    "Entry_RSI_value_min": 5,
+    "Entry_RSI_value_max": 95,
+    "Entry_RSI_direction": ["up", "down"],
+    "Entry_RSI_move": [True, False],
     "Exit_EMA_period_min": 7,
     "Exit_EMA_period_max": 31,
 }
@@ -71,6 +69,7 @@ def load_data(ticker):
         if db.check_table(ticker):
             df = db.load(ticker)
     return df
+
 
 if __name__ == "__main__":
     ticker = "^NSEI"
