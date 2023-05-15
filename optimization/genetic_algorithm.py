@@ -9,6 +9,7 @@ import pandas as pd
 from pathlib import Path
 from optimization.initial_strategy import STRATEGY, LIMITS, load_data
 from optimization import trading_model as ff
+from optimization.test_strategy import strategy_test
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +122,7 @@ def mutation(strategy, flag):
     return strategy
 
 
-def run_genetic_algorithm(ticker):
+def run_genetic_algorithm(ticker, index_name, title):
 
     # logging handlers
     file = str(Path(__file__).parent) + "/Results/{}_{}.log".format(ticker,
@@ -192,9 +193,14 @@ def run_genetic_algorithm(ticker):
         if duplicates > 0:
             logger.info("Duplicates found in population with duplicates number: {}".format(duplicates))
 
+    strategy_test(
+        ticker,
+        index_name,
+        population[ranks[-1, 0]],
+        title)
     return population, ranks
 
 
 if __name__ == "__main__":
-    population, ranks = run_genetic_algorithm("NIFTYBEES.NS")
+    population, ranks = run_genetic_algorithm("NIFTYBEES.NS", "NIFTYBEES ETF", "Performance Optimization and Total Returns")
     print(ranks[0])
