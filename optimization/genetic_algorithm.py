@@ -125,7 +125,7 @@ def mutation(strategy, flag):
 def run_genetic_algorithm(ticker, index_name, title):
 
     # logging handlers
-    file = str(Path(__file__).parent) + "/Results/{}_{}.log".format(ticker,
+    file = str(Path(__file__).parent) + "/Results/{}_{}_{}.log".format(ticker, title,
                                                                     datetime.datetime.now().strftime("%Y%m%d%H%M"))
     c_handler = logging.StreamHandler()
     logger.addHandler(c_handler)
