@@ -20,8 +20,9 @@ INITIAL_AMOUNT = 1E5
 OBJECTIVE = "Objective"
 MUTATION_PERC = 0.02
 CROSS_OVER_PERC = 0.5
+DRAW_DOWN_TOL = 0.1
 
-TILL_DATE_FILTER = "2023-01-01"
+TILL_DATE_FILTER = "2020-01-01"
 
 def get_random_strategy():
     random_strat = copy.deepcopy(STRATEGY)
@@ -143,7 +144,7 @@ def run_genetic_algorithm(ticker):
         fitness = np.zeros((NUM_STRATEGIES, 2))
         fitness[:, 0] = np.arange(0, NUM_STRATEGIES)
 
-        args = [(price_data, strategy, INITIAL_AMOUNT) for strategy in population.values()]
+        args = [(price_data, strategy, INITIAL_AMOUNT, DRAW_DOWN_TOL) for strategy in population.values()]
         results = pool.starmap(ff.fitness_function, args)
         fitness[:, 1] = [result.get(OBJECTIVE) for result in results]
 

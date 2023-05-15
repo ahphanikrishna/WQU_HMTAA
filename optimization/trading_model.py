@@ -128,7 +128,7 @@ def get_strategy_plot(df, strategy_final, index_name, title="Deterministic Tradi
     plt.show(block=False)
 
 
-def strategy_results(df, strategy):
+def strategy_results(df, strategy, initial_amount=1e6):
 
     periods = strategy["time_period"]
 
@@ -155,11 +155,6 @@ def strategy_results(df, strategy):
 
     df = hold_regions(df)
     strategy_final, df = get_performance(df)
-    return strategy_final, df
-
-
-def fitness_function(df, strategy, initial_amount=1e6):
-    strategy_final, df = strategy_results(df, strategy)
 
     strategy_final = strategy_final[~strategy_final["Date_Entry"].isnull()]
     strategy_final = strategy_final[~strategy_final["Date_Exit"].isnull()]
@@ -168,10 +163,18 @@ def fitness_function(df, strategy, initial_amount=1e6):
         if i == 0:
             strategy_final.loc[i, "AvailableAmount"] = initial_amount
         else:
-            strategy_final.loc[i, "AvailableAmount"] = strategy_final.loc[i-1, "AvailableAmount"] + strategy_final.loc[i-1, "ActualReturns"]
-        strategy_final.loc[i, "Units"] = strategy_final.loc[i, "AvailableAmount"]/strategy_final.loc[i, "Close_Entry"]
-        strategy_final.loc[i, "ActualReturns"] = strategy_final.loc[i, "Units"]*strategy_final.loc[i, "Returns"]
-        strategy_final.loc[i, "DrawDown"] = min(strategy_final.loc[i, "AvailableAmount"] - strategy_final.loc[:i, "AvailableAmount"].max(), 0)
+            strategy_final.loc[i, "AvailableAmount"] = strategy_final.loc[i - 1, "AvailableAmount"] + \
+                                                       strategy_final.loc[i - 1, "ActualReturns"]
+        strategy_final.loc[i, "Units"] = strategy_final.loc[i, "AvailableAmount"] / strategy_final.loc[i, "Close_Entry"]
+        strategy_final.loc[i, "ActualReturns"] = strategy_final.loc[i, "Units"] * strategy_final.loc[i, "Returns"]
+        strategy_final.loc[i, "DrawDown"] = min(
+            strategy_final.loc[i, "AvailableAmount"] - strategy_final.loc[:i, "AvailableAmount"].max(), 0)
+
+    return strategy_final, df
+
+
+def fitness_function(df, strategy, initial_amount=1e6, drawdown_tol=0.1):
+    strategy_final, df = strategy_results(df, strategy, initial_amount)
 
     if strategy_final.empty:
         ff = {"Win Ratio": 0.0,
@@ -187,7 +190,7 @@ def fitness_function(df, strategy, initial_amount=1e6):
         ff = {"Win Ratio": np.sum(np.where(strategy_final["ActualReturns"] > 0, 1, 0)) / len(strategy_final),
               "Max draw-down": -1*(strategy_final.loc[:, "DrawDown"].min()),
               "performance Ratio": -1*(strategy_final.loc[strategy_final["ActualReturns"] > 0, "ActualReturns"].sum() / \
-                                   min(strategy_final.loc[:, "DrawDown"].min(), -0.1*initial_amount)),
+                                   min(strategy_final.loc[:, "DrawDown"].min(), -drawdown_tol*initial_amount)),
               "Total Returns": strategy_final["ActualReturns"].sum()}
 
     ff["Objective"] = ff["performance Ratio"] * ff["Total Returns"]
