@@ -13,9 +13,13 @@ from optimization import trading_model as ff
 logger = logging.getLogger(__name__)
 
 NUM_EVOLUTIONS = 100
+
 TOP_PERC = 0.1
 NUM_STRATEGIES = 100
-
+INITIAL_AMOUNT = 1E5
+OBJECTIVE = "Objective"
+MUTATION_PERC = 0.02
+CROSS_OVER_PERC = 0.5
 
 TILL_DATE_FILTER = "2023-01-01"
 
@@ -49,6 +53,23 @@ def create_strategy(population):
         if not check:
             exist = False
     return strategy
+
+
+def count_unique_population(population):
+    unique_list = []
+    for x in population:
+        if x not in unique_list:
+            unique_list.append(x)
+
+    return unique_list
+
+
+def strategy_exists(strategy, population):
+    check = [d1 for d1 in population if d1 == strategy]
+    if check:
+        return True
+    else:
+        return False
 
 
 def create_population(population_size=1000):
@@ -111,7 +132,6 @@ def run_genetic_algorithm(ticker):
     logger.addHandler(f_handler)
     logger.setLevel(logging.INFO)
 
-
     price_data = load_data(ticker)
     price_data = price_data[price_data['Date'] <= TILL_DATE_FILTER]
     population = create_population(NUM_STRATEGIES)
@@ -123,12 +143,9 @@ def run_genetic_algorithm(ticker):
         fitness = np.zeros((NUM_STRATEGIES, 2))
         fitness[:, 0] = np.arange(0, NUM_STRATEGIES)
 
-        args = [(price_data, strategy) for strategy in population.values()]
+        args = [(price_data, strategy, INITIAL_AMOUNT) for strategy in population.values()]
         results = pool.starmap(ff.fitness_function, args)
-        fitness[:, 1] = [result.get("Total Returns") for result in results]
-        # for j, strategy in population.items():
-        #     print(j)
-        #     fitness[j, 1] = ff.fitness_function(price_data, strategy).get("Max draw-down")
+        fitness[:, 1] = [result.get(OBJECTIVE) for result in results]
 
         ranks = fitness[fitness[:, 1].argsort()]
         logger.info("best result for round {} is with \nobective: {}\n"
@@ -139,31 +156,44 @@ def run_genetic_algorithm(ticker):
         good_strats = ranks[int(change_perc):, 0]
         bad_strats = ranks[:int(change_perc), 0]
 
-        # dt = datetime.datetime.today().strftime("%Y%m%d")
-        # pd.DataFrame(ranks).to_csv(str(Path(__file__).parent) + "/Results/{}_{}_{}.csv".format(ticker, dt, i),
-        #                            index=False)
-
         # applying cross_over and mutation and random strategy on bad strategies
 
-        splits = np.array_split(bad_strats, 3)
+        # splits = np.array_split(bad_strats, 3)
+        #
+        # # cross over
+        # for index in splits[0]:
+        #     population[index] = cross_over(good_strats, population)
+        #
+        # # Mutation
+        # for index in splits[1]:
+        #     flag = random.choice(["time_period", "ADX", "RSI"])
+        #     population[index] = mutation(population[index], flag)
+        #
+        # # Random
+        # for index in splits[1]:
+        #     new_strategy = create_strategy(list(population.values()))
+        #     population[index] = new_strategy
 
-        # cross over
-        for index in splits[0]:
-            population[index] = cross_over(good_strats, population)
+        # Using random numbers to do crossover and mutation
+        for index in bad_strats:
+            random_number = random.random()
 
-        # Mutation
-        for index in splits[1]:
-            flag = random.choice(["time_period", "ADX", "RSI"])
-            population[index] = mutation(population[index], flag)
+            if random_number <= MUTATION_PERC:
+                flag = random.choice(["time_period", "ADX", "RSI"])
+                population[index] = mutation(population[index], flag)
+            elif MUTATION_PERC < random_number <= CROSS_OVER_PERC:
+                population[index] = cross_over(good_strats, population)
+            elif random_number > CROSS_OVER_PERC:
+                population[index] = create_strategy(list(population.values()))
 
-        # Random
-        for index in splits[1]:
-            population[index] = create_strategy(population)
+        unique_population = count_unique_population(list(population.values()))
+        duplicates = len(list(population.values())) - len(unique_population)
+        if duplicates > 0:
+            logger.info("Duplicates found in population with duplicates number: {}".format(duplicates))
 
     return population, ranks
 
 
-
 if __name__ == "__main__":
-    population, ranks = run_genetic_algorithm("^NSEI")
+    population, ranks = run_genetic_algorithm("NIFTYBEES.NS")
     print(ranks[0])
