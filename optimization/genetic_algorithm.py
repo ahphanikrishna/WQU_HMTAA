@@ -157,6 +157,7 @@ def run_genetic_algorithm(ticker, index_name, title):
 
         good_strats = ranks[int(change_perc):, 0]
         bad_strats = ranks[:int(change_perc), 0]
+        best_strategy = population[ranks[-1, 0]]
 
         # applying cross_over and mutation and random strategy on bad strategies
 
@@ -196,7 +197,7 @@ def run_genetic_algorithm(ticker, index_name, title):
     strategy_test(
         ticker,
         index_name,
-        population[ranks[-1, 0]],
+        best_strategy,
         title)
     return population, ranks
 
