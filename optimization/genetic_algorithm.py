@@ -143,10 +143,10 @@ def run_genetic_algorithm(ticker, index_name, title):
 
     for i in range(NUM_EVOLUTIONS):
         fitness = np.zeros((NUM_STRATEGIES, 2))
-        fitness[:, 0] = np.arange(0, NUM_STRATEGIES)
 
-        args = [(price_data, strategy, INITIAL_AMOUNT, DRAW_DOWN_TOL) for strategy in population.values()]
+        args = [(price_data, strategy, key, INITIAL_AMOUNT, DRAW_DOWN_TOL) for key, strategy in population.items()]
         results = pool.starmap(ff.fitness_function, args)
+        fitness[:, 0] = [result.get("Key") for result in results]
         fitness[:, 1] = [result.get(OBJECTIVE) for result in results]
 
         ranks = fitness[fitness[:, 1].argsort()]
@@ -154,7 +154,6 @@ def run_genetic_algorithm(ticker, index_name, title):
                     "strategy: {}\nfitness {}".format(i,
                                                       ranks[-1, 1], population[ranks[-1, 0]].__str__(),
                                                       results[int(ranks[-1, 0])].__str__()))
-
         good_strats = ranks[int(change_perc):, 0]
         bad_strats = ranks[:int(change_perc), 0]
         best_strategy = population[ranks[-1, 0]]
@@ -194,6 +193,7 @@ def run_genetic_algorithm(ticker, index_name, title):
         if duplicates > 0:
             logger.info("Duplicates found in population with duplicates number: {}".format(duplicates))
 
+    print(best_strategy)
     strategy_test(
         ticker,
         index_name,

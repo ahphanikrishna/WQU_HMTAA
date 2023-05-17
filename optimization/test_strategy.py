@@ -6,10 +6,12 @@ from optimization import trading_model as ff
 from optimization import initial_strategy
 
 PATH = str(Path(__file__).parent) + "/Results/"
+TILL_DATE_FILTER = "2020-01-01"
 
 
 def strategy_test(ticker, index_name, strategy, title):
     df = initial_strategy.load_data(ticker)
+    df = df[df['Date'] > TILL_DATE_FILTER].reset_index()
     new_df = df.copy()
 
     if not df.empty:
@@ -30,9 +32,9 @@ def strategy_test(ticker, index_name, strategy, title):
 if __name__ == "__main__":
     ticker = "NIFTYBEES.NS"
     index_name = "NIFTY ETF (performance Optimization)"
-    strategy = dict(time_period={'ADXPeriod': 19, 'RSIPeriod': 14, 'EMAPeriod': 28},
-                    Entry=dict(ADX={'Value': 11, 'Type': 'value', 'direction': 'up'},
-                               RSI={'Value': 55, 'Type': 'value', 'direction': 'up'},
+    strategy = dict(time_period={'ADXPeriod': 28, 'RSIPeriod': 7, 'EMAPeriod': 24},
+                    Entry=dict(ADX={'Value': 10, 'Type': 'value', 'direction': 'up'},
+                               RSI={'Value': 62, 'Type': 'value', 'direction': 'up'},
                                ADXMove={'Value': True, 'Type': bool, 'direction': None},
                                RSIMove={'Value': True, 'Type': bool, 'direction': None}),
                     Exit= dict(Close={'Value': 'EMA', 'Type': 'column', 'direction': 'down'}))

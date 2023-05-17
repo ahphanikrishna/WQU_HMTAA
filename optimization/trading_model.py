@@ -173,7 +173,7 @@ def strategy_results(df, strategy, initial_amount=1e6):
     return strategy_final, df
 
 
-def fitness_function(df, strategy, initial_amount=1e6, drawdown_tol=0.1):
+def fitness_function(df, strategy, key=0, initial_amount=1e6, drawdown_tol=0.1):
     strategy_final, df = strategy_results(df, strategy, initial_amount)
 
     if strategy_final.empty:
@@ -194,4 +194,5 @@ def fitness_function(df, strategy, initial_amount=1e6, drawdown_tol=0.1):
               "Total Returns": strategy_final["ActualReturns"].sum()}
 
     ff["Objective"] = ff["performance Ratio"] * ff["Total Returns"]
+    ff["Key"] = key
     return ff
