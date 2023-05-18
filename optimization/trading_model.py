@@ -72,6 +72,18 @@ def get_performance(df):
     return strategy_final, df
 
 
+def plot_price_data(data, index_name):
+    fig, axs = plt.subplots(1, 1, figsize=(18, 7), tight_layout=True)
+    axs.plot(data['Date'], data['Close'], label=None)
+    axs.set_title('{} - Close'.format(index_name), fontsize=20)
+    axs.set_xlabel('Date', fontsize=20)
+    axs.tick_params(axis='x', labelsize=20)
+    axs.tick_params(axis='y', labelsize=20)
+    dt = datetime.datetime.now().strftime("%Y%m%d%H%M")
+    plt.savefig(PATH + index_name + "_PriceData_{}.jpg".format(dt))
+    plt.show(block=False)
+
+
 def get_technical_plot(df, index_name):
     fig, axs = plt.subplots(2, figsize=(20, 6))
     axs[0].plot(df['Date'], df['Close'], label=index_name)
