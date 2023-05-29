@@ -193,11 +193,11 @@ def fitness_function(df, strategy, key=0, initial_amount=1e6, drawdown_tol=0.1):
               "Max draw-down": -1e6,
               "performance Ratio": 0.0,
               "Total Returns": 0.0}
-    elif np.sum(np.where(strategy_final["ActualReturns"] < 0, strategy_final["ActualReturns"], 0)) == 0.0:
-        ff = {"Win Ratio": 0.0,
-              "Max draw-down": -1e6,
-              "performance Ratio": 0.0,
-              "Total Returns": 0.0}
+    # elif np.sum(np.where(strategy_final["ActualReturns"] < 0, strategy_final["ActualReturns"], 0)) == 0.0:
+    #     ff = {"Win Ratio": 0.0,
+    #           "Max draw-down": -1e6,
+    #           "performance Ratio": 0.0,
+    #           "Total Returns": 0.0}
     else:
         ff = {"Win Ratio": np.sum(np.where(strategy_final["ActualReturns"] > 0, 1, 0)) / len(strategy_final),
               "Max draw-down": -1*(strategy_final.loc[:, "DrawDown"].min()),
